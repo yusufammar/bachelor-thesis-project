@@ -10,4 +10,4 @@
 -  Thesis Paper- Final Submission
 -  Defense Powerpoint Presentation
 
-*Note: I couldn't upload the project source code as it exceeds 10GB due to the local usage of the sentence similarity deep learning model, but I do have it on my laptop & a backup on an external SSD. I want to run the run the project locally again I could do it easily after renewing Microsoft Azure Speech Recognition Services.
+*Note: I couldn't upload the project source code as it exceeds 10GB due to the local usage of the sentence similarity deep learning model, but I do have it on my laptop & a backup on an external SSD. If I want to run run the project locally again I could do it easily after renewing Microsoft Azure Speech Recognition Services.
