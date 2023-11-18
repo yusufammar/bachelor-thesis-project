@@ -9,4 +9,4 @@
 -  Demo Video Output pdf document, just to have the original document if you had difficulty seeing the results in the video
 -  Thesis Paper- Final Submission
 -  Defense Powerpoint Presentation
--  Note: I couldn't upload the project source code as it exceeds 10GB due to the local usage of the sentence similarity deep learning model, but I do have it on my laptop & a backup on an external SSD.
+Note: I couldn't upload the project source code as it exceeds 10GB due to the local usage of the sentence similarity deep learning model, but I do have it on my laptop & a backup on an external SSD.
