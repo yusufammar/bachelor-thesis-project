@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+
+  <link rel="stylesheet" type="text/css" href="static/css/style.css">
+
+  <body>
+
+
+  <div id="content">
+  
+    
+  
+    <canvas id="m"></canvas>
+    <div style="display:flex;">
+      <div id="controls">   <button id="recordButton">Record</button>    <button id="pauseButton" disabled>Pause</button>   <button id="stopButton" disabled>Stop</button>  </div>
+      <div id="slide"></div> 
+    </div>
+  
+  </div> 
+</body>
+  
+<script src="static/js/recorder.js"></script>
+
+
+<script src="static/js/build/pdf.js"></script>  
+
+<script>
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//MS Counter
+
+var startTime = 0;  var timeElapsed=0;  var current=0;
+
+var started=false; var playing=false;   var paused=true;   
+
+var previoustime=0; 
+
+function countTime() {
+if (playing==true){    //Started Playing
+startTime=new Date().getTime();    playing=false;        }
+
+if (paused==false){   //Playing
+timeElapsed = new Date().getTime();
+current= (timeElapsed-startTime) + previoustime;      
+//document.getElementById("demo").innerHTML = current;    //Updating MS counter in html  (demo)     
+}
+
+if (paused==true){    // Paused
+  previoustime=current;     }
+
+
+}  // End of countTime
+
+xx=setInterval(countTime, 1); // updates every 1ms
+//-----------------------------------------------------------------------------------------------
+
+var array=[]   // timing array (of slide changes)
+
+
+//PDF
+pdfjsLib.getDocument("static/lec.pdf").promise.then(doc=>{
+maxPages=doc._pdfInfo.numPages;  array.push(maxPages); // always first slot in array reserved for no of total slides
+pageNo=1;
+document.getElementById("slide").innerHTML = "Slide: " + pageNo + " / " + maxPages;
+
+function viewPage(pg){
+    doc.getPage(pg).then(page=>{
+       var canvas= document.getElementById("m"); var context= canvas.getContext("2d");
+       var viewport= page.getViewport({scale:2});
+       canvas.height = viewport.height; canvas.width = viewport.width;
+       page.render({ canvasContext: context, viewport: viewport });
+    });
+}
+
+viewPage(1);
+
+  
+function keyPress(event){
+    const key = event.keyCode;
+    switch (key){
+    case (37): {
+        if (pageNo!=1){
+            pageNo-=1; viewPage(pageNo);  document.getElementById("slide").innerHTML = "Slide: " + pageNo + " / " + maxPages;     
+            if (started && paused==false) { var obj= {"Time": current, "Slide": pageNo }; array.push(obj); console.log(array); //Record slide change if recording is on
+               }  
+        }
+         break;}
+    case (39): {
+        if (pageNo!=maxPages){
+            pageNo+=1; viewPage(pageNo); document.getElementById("slide").innerHTML = "Slide: " + pageNo + " / " + maxPages;     //console.log("Right | Time: " + current + " | Slide: " + pageNo); 
+            if (started && paused==false) {var obj= {"Time": current, "Slide": pageNo }; array.push(obj); console.log(array);  }
+        }
+         break;}
+    } 
+}
+
+document.addEventListener('keydown', keyPress);
+
+});
+
+URL = window.URL || window.webkitURL; //webkitURL is deprecated but nevertheless
+
+var gumStream; /*stream from getUserMedia() */   var rec; /*Recorder.js object*/   var input;  //MediaStreamAudioSourceNode we'll be recording
+
+var AudioContext = window.AudioContext || window.webkitAudioContext;             var audioContext //audio context to help us record
+
+
+var recordButton = document.getElementById("recordButton"); recordButton.addEventListener("click", startRecording);
+var pauseButton = document.getElementById("pauseButton");  pauseButton.addEventListener("click", pauseRecording);
+var stopButton = document.getElementById("stopButton");    stopButton.addEventListener("click", stopRecording);
+
+
+
+function startRecording() {
+//Adding Initial Slide to array
+var obj= {"Time": current, "Slide": pageNo }; array.push(obj); console.log(array)
+
+//MS Counter--------------------------------------
+if (paused==true) { playing=true;  paused=false;  }
+//-----------------------------------------------
+
+  
+
+  if (started==false){   //Never Started Before
+
+  var constraints = { audio: true, video:false }
+  navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+  //console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+
+  audioContext = new AudioContext();     gumStream = stream;           input = audioContext.createMediaStreamSource(stream);
+  rec = new Recorder(input,{numChannels:1}); 			rec.record()  //start the recording process
+
+  setTimeout(() => { recordButton.innerHTML="Recording";   recordButton.disabled = true;  stopButton.disabled = false;  pauseButton.disabled = false; }, 1000); 
+  // padding (1000 ms, 1s) just to make sure the whole speech is captured, audio file actually begins on spot but speech may not be captured, 
+  //so the first 0.5 secs or so will be silence so we apply padding & keep in mid the counter stats with the begining of audio file
+  //NOTE: no padding needed when pausing & resuming
+
+  }).catch(function(err) { //enable the record button if getUserMedia() fails
+    recordButton.disabled = false;     stopButton.disabled = true;   pauseButton.disabled = true   });
+  
+    started=true; 
+  }
+  
+  else if (started==true){ /* resume */   rec.record();  recordButton.innerHTML="Recording"; 
+  recordButton.disabled = true;  stopButton.disabled = false;  pauseButton.disabled = false;    }
+}
+
+function pauseRecording(){
+//MS Counter 
+paused=true;
+//-------------------------------------------------
+	
+rec.stop();
+recordButton.disabled = false;  stopButton.disabled = false;  pauseButton.disabled = true;
+recordButton.innerHTML="Resume";
+}
+
+
+
+function stopRecording() {
+  clearInterval(xx);  // stop ms counter
+
+	//disable the stop button, enable the record too allow for new recordings
+	stopButton.disabled = true;     recordButton.disabled = false;        pauseButton.disabled = true;
+
+	//reset button just in case the recording is stopped while paused
+	pauseButton.innerHTML="Pause";
+	
+	//tell the recorder to stop the recording
+	rec.stop();
+
+	//stop microphone access
+	gumStream.getAudioTracks()[0].stop();
+
+	//create the wav blob and pass it on to createDownloadLink
+	//rec.exportWAV(createDownloadLink); //Generates Links to upload or download recorded audio Upon Pressing Stop Button
+	
+	//create the wav blob and pass it on to uploadBlob
+	
+ 
+document.getElementById("content").innerHTML= "Loading..."          //hiding all content & showing loading message upon pressing the stop button
+
+  rec.exportWAV(uploadBlob); //Upload wav sound File Upon Pressing Stop Button
+  //upload2();  // upload timing array Upon Pressing Stop Button
+
+	//document.location.reload() 
+}
+
+
+
+function uploadBlob(blob){
+
+	var xhr=new XMLHttpRequest();  xhr.open("POST","/uploadAudio"); 
+   var fd=new FormData(); fd.append("audio_data",blob);   xhr.send(fd);      //blob is the actual wav file     
+  
+
+  xhr.onreadystatechange = function() {
+  if(xhr.readyState == XMLHttpRequest.DONE) {
+  
+    var xhr2=new XMLHttpRequest();   xhr2.open("POST","/uploadTimeArray");
+  sender= JSON.stringify(array);   xhr2.send(sender);
+
+  xhr2.onreadystatechange = function() {
+  if(xhr2.readyState == XMLHttpRequest.DONE) { window.location.href = '/result'; }}
+    
+    }}
+
+}
+
+    </script>
+
+</html>

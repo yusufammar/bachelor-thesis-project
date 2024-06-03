@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+     
+  
+<h2> Lecture Notes </h2>    <br>
+
+
+{% for x in data %}
+
+<b style="color:red">Slide: </b>  <b>{{x['Slide']}}</b> <br><br>
+
+{% set chunksStrings= x['ChunksStrings'] %}
+
+{% for y in chunksStrings %}
+{{ y['String'] }}
+{% endfor %}
+
+<hr>
+	
+{% endfor %}
+
+
+<br><br>	
+
+
+</body>  
+
+</html>
