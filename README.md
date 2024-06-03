@@ -11,5 +11,4 @@
 -  Demo Video Output pdf document, just to have the original document if you had difficulty seeing the results in the video
 -  Thesis Paper- Final Submission
 -  Defense Powerpoint Presentation
--  
 
