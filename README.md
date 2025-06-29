@@ -1,4 +1,4 @@
-﻿# 🎓 Bachelor Thesis Project: Lecture Annotation with Code-Switched Speech
+# 🎓 Bachelor Thesis Project: Lecture Annotation with Code-Switched Speech
 
 **Author:** Yusuf Ammar
 
@@ -6,13 +6,12 @@
 
 **University:** German University in Cairo
 
----
 
 ## 🗣️ Project Overview
 
 This project aims to simplify student note-taking by automatically annotating lecture slides using code-switched speech (English/Arabic) transcriptions. It was developed as part of my bachelor thesis at the German University in Cairo (Feb – July 2022).
 
----
+
 
 ## 💡 Key Features
 
@@ -32,8 +31,27 @@ This project aims to simplify student note-taking by automatically annotating le
     
     Outputs a fully annotated PDF with slide content and aligned speech transcriptions for easier review.
     
+## ⚡ Challenges & Solutions
 
----
+### **Challenges**
+
+- ✅ Existing ASR systems only handle **one language at a time**, but lectures contain code-switched English/Arabic speech.
+- ✅ Lecturers often **deviate from slides**, making it hard to accurately map speech to slides.
+
+### **Solutions**
+
+- 💡 **Post-processing approach for code-switching:**
+    
+    Recorded full audio, recognized in both languages, then split into chunks using slide-switch timestamps. Chunks were processed word by word, low-confidence words were filtered out (using thresholds determined by trial and error), and both outputs were combined to improve transcription accuracy.
+    
+    - 💡**Step 1: Time Alignment**
+        
+        Text was first split into chunks using slide-switch timestamps. Each chunk was matched to the slide being viewed at that exact time. This avoids errors from fixed silence-based splitting (which fails due to variable speaker pause patterns) and ensures each slide receives only the text spoken during its active display.
+        
+    - 💡 **Step 2: Sentence Similarity with Deep Learning Model**
+        
+        Chunks assigned to each slide were further split on silences longer than 5 seconds to detect topic shifts. Text from slides was extracted and each chunk was matched to slide content using a deep learning sentence similarity model to refine mapping accuracy.
+
 
 ## 🧑‍💻 Tech Stack
 
@@ -67,3 +85,7 @@ If you'd like to run this project locally, please note:
 
 - Model weights and audio files are not included in this repository.
 - Azure Speech Services keys and setup are required (can be renewed if needed).
+
+![1](https://github.com/user-attachments/assets/80bc33b3-0752-42b8-9b15-93c869753a09)
+![2](https://github.com/user-attachments/assets/7c37ed72-b112-4cf6-88ac-5cd694a27016)
+![3](https://github.com/user-attachments/assets/38f8d9a1-0471-4117-8a1a-c55d4f0a3c91)
