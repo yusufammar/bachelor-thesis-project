@@ -35,7 +35,7 @@ This project aims to simplify student note-taking by automatically annotating le
 
 ### **Challenges**
 
-- ✅ Existing ASR systems only handle **one language at a time**, but lectures contain code-switched English/Arabic speech.
+- ✅ Existing ASR systems only handle **one language at a time**, but lecturers explanation contain code-switched English/Arabic speech.
 - ✅ Lecturers often **deviate from slides**, making it hard to accurately map speech to slides.
 
 ### **Solutions**
